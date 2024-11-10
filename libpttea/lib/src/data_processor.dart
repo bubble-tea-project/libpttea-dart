@@ -203,7 +203,9 @@ int getDifferentIndex(List<String> page, List<String> lastPage) {
     }
 
     // content , but found replies on the same page.
-    if (foundReply) {
+    if (foundReply && line.isNotEmpty) {
+      // If there are only a few replies, the page will include empty lines after the replies.
+
       // For the author's reply that edited the content.
       postReplies
           .add({'type': 'author', 'reply': line, 'ip': '', 'datetime': ''});
