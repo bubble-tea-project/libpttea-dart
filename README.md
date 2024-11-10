@@ -49,7 +49,7 @@ Future<void> main() async {
 
 
 ## 🔗 Links
-- [LibPttea Python Version](https://bubble-tea-project.github.io/libpttea/)
+- [LibPttea Python Version](https://github.com/bubble-tea-project/libpttea)
 - [LibPttea Documentation (Python)](https://bubble-tea-project.github.io/libpttea/)
 
 
