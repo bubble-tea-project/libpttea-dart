@@ -1,39 +1,57 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+<h1 align="center">LibPttea-dart</h1>
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+<div align="center">
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
+The [LibPttea](https://github.com/bubble-tea-project/libpttea) library implemented in Dart.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
 
-## Features
+[![Pub Version](https://img.shields.io/pub/v/libpttea)](https://pub.dev/packages/libpttea)
+[![GitHub License](https://img.shields.io/github/license/bubble-tea-project/libpttea-dart)](https://github.com/bubble-tea-project/libpttea-dart/blob/main/LICENSE)
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+</div>
 
-## Getting started
+## 📖 Description
+LibPttea-dart 是 [LibPttea](https://github.com/bubble-tea-project/libpttea) 的 Dart 版本，目的在封裝各種 PTT 功能操作，旨在輔助開發 [PTTea](https://github.com/bubble-tea-project/PTTea) APP 專案的 PTT 功能函式庫。
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
 
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
+## 📦 Installation
+LibPttea is available on [Pub](https://pub.dev/packages/libpttea):
+```bash
+pub add libpttea
 ```
 
-## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+## 🎨 Usage
+```dart
+import 'package:libpttea/libpttea.dart' as libpttea;
+
+const pttAccount = "PTT ID";
+const pttPassword = "PTT 密碼";
+
+Future<void> main() async {
+  final libPttea =
+      await libpttea.login(pttAccount, pttPassword, delDuplicate: true);
+
+  final systemInfo = await libPttea.getSystemInfo();
+  print(systemInfo);
+  // [您現在位於 批踢踢實業坊 (140.112.172.11),
+  // 系統負載: 輕輕鬆鬆,
+  // 線上人數: 59384/175000,
+  // ClientCode: 02000023,
+  // 起始時間: 11/10/2024 05:17:51,
+  // 編譯時間: Sun Jun  4 23:41:30 CST 2023,
+  // 編譯版本: https://github.com/ptt/pttbbs.git 0447b25c 8595c8b4 M]
+
+  await libPttea.logout();
+}
+
+```
+
+
+## 🔗 Links
+- [LibPttea Python Version](https://bubble-tea-project.github.io/libpttea/)
+- [LibPttea Documentation (Python)](https://bubble-tea-project.github.io/libpttea/)
+
+
+## 📜 License
+[![GitHub License](https://img.shields.io/github/license/bubble-tea-project/libpttea-dart)](https://github.com/bubble-tea-project/libpttea-dart/blob/main/LICENSE)
