@@ -58,7 +58,7 @@ bool inBoard(Session session) {
   final currentScreen = session.ansipScreen.toFormattedString();
 
   // check status bar
-  if (!pattern.regexMenuStatusBar.hasMatch(currentScreen.last)) {
+  if (!pattern.regexBoardStatusBar.hasMatch(currentScreen.last)) {
     return false;
   }
 
