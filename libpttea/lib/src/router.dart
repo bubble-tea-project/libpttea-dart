@@ -1,9 +1,12 @@
 /// libpttea.router
+/// ----------
 ///
 /// This module provides a URL-based API for navigating between different PTT screens.
+library;
 
 import 'dart:async';
-import 'dart:core';
+import 'dart:math';
+
 import './navigator.dart' as navigator;
 import './pattern.dart' as pattern;
 import './sessions.dart';
@@ -14,43 +17,58 @@ class Router {
 
   Router(this._session);
 
+  /// Split the path into individual parts.
   List<String> _pathParts(String path) {
-    // Split the path into individual parts.
-    return path.replaceAll(RegExp(r'/$'), '').replaceAll(RegExp(r'^/'), '').split('/');
+    return path
+        .replaceAll(RegExp(r'/$'), '')
+        .replaceAll(RegExp(r'^/'), '')
+        .split('/');
   }
 
+  /// Get the level of the path, starting from 0.
   int _pathLevel(String path) {
-    // Get the level of the path, starting from 0.
-    return path.replaceAll(RegExp(r'/$'), '').split('/').length - 1;
+    // Remove trailing slashes
+    path = path.replaceAll(RegExp(r'/$'), '');
+
+    // count '/'
+    return "/".allMatches(path).length;
   }
 
+  /// Get the current location from the path.
   String _pathCurrent(String path) {
-    // Get the current location from the path.
     if (path == "/") return "/";
+
     final parts = _pathParts(path);
+
     return parts.last;
   }
 
+  /// Get the level at which two paths are the same until they diverge.
   int _pathSameUntil(String current, String go) {
-    // Get the level at which two paths are the same until they diverge.
     final currentParts = _pathParts(current);
     final goParts = _pathParts(go);
 
-    final minLength = currentParts.length < goParts.length ? currentParts.length : goParts.length;
+    // Find the shorter
+    final minLength = min(currentParts.length, goParts.length);
+
     for (var index = 0; index < minLength; index++) {
       if (currentParts[index] != goParts[index]) return index;
     }
+
+    // If one path is a subset of the other
     return minLength;
   }
 
+  /// Calculate required steps to navigate from the current path to the target path.
   (List<String>, List<String>) _pathNeedMove(String current, String go) {
-    // Calculate required steps to navigate from the current path to the target path.
     final currentLevel = _pathLevel(current);
     final currentParts = _pathParts(current);
+
     final goLevel = _pathLevel(go);
     final goParts = _pathParts(go);
 
     final sameUntil = _pathSameUntil(current, go);
+
     final needBack = currentParts.sublist(sameUntil, currentLevel);
     final needGo = goParts.sublist(sameUntil, goLevel);
 
@@ -58,51 +76,59 @@ class Router {
   }
 
   Future<void> _back(List<String> needs) async {
-    //shallow copy , but string is immutable
-    var remain_needs = [...needs];
+    // shallow copy , but string is immutable
+    var remainNeeds = [...needs];
 
     for (final currentLocation in needs.reversed) {
+      //
       switch (currentLocation) {
         case "favorite":
           await navigator.Favorite(_session).back();
-          break;
+
         case "utility":
           await navigator.Utility(_session).back();
-          break;
+
         case "info":
           await navigator.UtilityInfo(_session).back();
-          break;
+
         default:
+          // when at Board
           if (pattern.regexPathAtBoard.hasMatch(location())) {
             await navigator.Board(_session).back();
-          } else if (pattern.regexPathAtPostIndex.hasMatch(location())) {
+          }
+          // when at Post index
+          else if (pattern.regexPathAtPostIndex.hasMatch(location())) {
             await navigator.Post(_session).back();
           } else {
-            throw UnimplementedError("Not supported yet, back from = $currentLocation.");
+            throw UnimplementedError(
+                "Not supported yet, back from = $currentLocation.");
           }
       }
-      remain_needs.removeLast();
-      _location = "/" + remain_needs.join("/");
+      remainNeeds.removeLast();
+      _location = "/${remainNeeds.join("/")}";
     }
   }
 
   Future<void> _go(List<String> needs) async {
     for (final nextLocation in needs) {
+      //
       switch (_pathCurrent(location())) {
         case "/":
           await navigator.Home(_session).go(nextLocation);
-          break;
+
         case "favorite":
           await navigator.Favorite(_session).go(nextLocation);
-          break;
+
         case "utility":
           await navigator.Utility(_session).go(nextLocation);
-          break;
+
         default:
+          // when at Board
           if (pattern.regexPathAtBoard.hasMatch(location())) {
             await navigator.Board(_session).go(int.parse(nextLocation));
           } else {
-            throw UnimplementedError("Not supported yet, from = ${location()}, go = $nextLocation.");
+            throw UnimplementedError(
+                "Not supported yet, from = ${location()}, go = $nextLocation.");
           }
       }
 
@@ -114,28 +140,34 @@ class Router {
     }
   }
 
+  /// Check if the current screen is the home menu.
   bool inHome() {
-    // Check if the current screen is the home menu.
     return navigator.inHome(_session);
   }
 
+  /// Initialize the path for the home menu.
   void initHome() {
-    // Initialize the path for the home menu.
     _location = "/";
   }
 
+  /// Get the current location path.
   String location() {
-    // Get the current location path.
-    if (_location.isEmpty) throw Exception("Home menu path is not initialized yet");
-    return _location;
+    if (_location.isEmpty) {
+      throw Exception("Home menu path is not initialized yet");
+    } else {
+      return _location;
+    }
   }
 
+  /// Navigate to a URL location.
   Future<void> go(String location) async {
-    // Navigate to a URL location.
-    if (this.location() == location) throw Exception("Already at the location");
+    if (this.location() == location) {
+      throw Exception("Already at the location");
+    }
 
-    var (need_back, need_go) = _pathNeedMove(this.location(), location);
-    await _back(need_back);
-    await _go(need_go);
+    var (needBack, needGo) = _pathNeedMove(this.location(), location);
+
+    await _back(needBack);
+    await _go(needGo);
   }
 }
