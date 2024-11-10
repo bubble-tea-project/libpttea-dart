@@ -9,7 +9,7 @@ import 'dart:collection';
 
 extension RegExpMatchExtension on RegExpMatch {
   /// Returns a map of all named groups from match.
-  Map<String, String?> groupMap({String? noMatch}) {
+  Map<String, String> groupMap({String noMatch=""}) {
     /// Returns a map {groupNames: namedGroup_value}
     /// If a capture group does not match, namedGroup_value will be 'noMatch'
     return {
